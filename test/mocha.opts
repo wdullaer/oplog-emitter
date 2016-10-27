@@ -1,0 +1,4 @@
+--reporter spec
+--bail
+--recursive
+--require ./test/_init.js

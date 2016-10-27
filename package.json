@@ -1,0 +1,58 @@
+{
+  "name": "oplog-emitter",
+  "version": "1.0.0",
+  "description": "Process your mongodb oplog as events",
+  "homepage": "https://github.com/wdullaer/oplog-emitter",
+  "author": {
+    "name": "Wouter Dullaert",
+    "email": "wouter.dullaert@gmail.com",
+    "url": "https://wdullaer.com"
+  },
+  "files": [
+    "lib"
+  ],
+  "main": "lib/index.js",
+  "engines": {
+    "node": ">=4"
+  },
+  "keywords": [
+    "oplog",
+    "event",
+    "emitter",
+    "mongodb",
+    "mongo"
+  ],
+  "dependencies": {
+    "mongodb": "~2.2.11",
+    "promise-poller": "~1.5.1"
+  },
+  "devDependencies": {
+    "chai": "~3.5.0",
+    "chai-as-promised": "~6.0.0",
+    "documentation": "~4.0.0-beta11",
+    "eslint": "~3.8.1",
+    "eslint-config-standard": "~6.2.1",
+    "eslint-plugin-standard": "~2.0.0",
+    "eslint-plugin-promise": "~3.3.0",
+    "istanbul": "~0.4.4",
+    "mocha": "~3.1.2",
+    "nsp": "~2.6.2",
+    "rewire": "~2.5.2",
+    "stream-util": "~4.0.4"
+  },
+  "eslintConfig": {
+    "extends": "standard",
+    "rules": {
+      "valid-jsdoc": 1
+    }
+  },
+  "repository": "wdullaer/oplog-emitter",
+  "scripts": {
+    "docs": "cat README-base.md > README.md && ./node_modules/.bin/documentation build -f md ./lib/index.js | sed 's/^# /### /g' >> README.md",
+    "lint": "./node_modules/.bin/eslint ./lib ./test",
+    "mocha": "./node_modules/mocha/bin/_mocha",
+    "test": "npm run lint && ./node_modules/.bin/istanbul cover --root lib/ ./node_modules/mocha/bin/_mocha",
+    "prepublish": "npm run test && npm run docs"
+  },
+  "license": "Apache-2.0"
+}

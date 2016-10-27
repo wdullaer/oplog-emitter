@@ -1,0 +1,7 @@
+dist
+node_modules
+coverage
+npm-debug.log
+.npmrc
+.DS_Store
+.directory
