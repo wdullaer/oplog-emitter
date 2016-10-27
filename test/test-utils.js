@@ -1,3 +1,5 @@
+'use strict'
+
 let mongodb = require('mongodb')
 let streamUtil = require('stream-util')
 let Timestamp = mongodb.Timestamp
