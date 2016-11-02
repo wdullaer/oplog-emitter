@@ -14,6 +14,7 @@ let OplogEmitter = testModule.__get__('OplogEmitter')
 let validateArgs = testModule.__get__('validateArgs')
 let getLastTimestamp = testModule.__get__('getLastTimestamp')
 let getOplogCollection = testModule.__get__('getOplogCollection')
+let connectToMongo = testModule.__get__('connectToMongo')
 
 function spy (func, done) {
   return function () {
@@ -52,7 +53,7 @@ describe('OplogEmitter', () => {
     const dummyConnect = () => {
       return Promise.reject(new Error('test-error'))
     }
-    restore = OplogEmitter.__set__({
+    restore = testModule.__set__({
       connectToMongo: dummyConnect
     })
 
@@ -73,7 +74,7 @@ describe('OplogEmitter', () => {
     const connect = () => {
       return Promise.resolve(cursor)
     }
-    restore = OplogEmitter.__set__({
+    restore = testModule.__set__({
       connectToMongo: connect
     })
 
@@ -98,7 +99,7 @@ describe('OplogEmitter', () => {
     const connect = () => {
       return Promise.resolve(cursor)
     }
-    restore = OplogEmitter.__set__({
+    restore = testModule.__set__({
       connectToMongo: connect
     })
 
@@ -123,7 +124,7 @@ describe('OplogEmitter', () => {
     const connect = () => {
       return Promise.resolve(cursor)
     }
-    restore = OplogEmitter.__set__({
+    restore = testModule.__set__({
       connectToMongo: connect
     })
 
@@ -148,7 +149,7 @@ describe('OplogEmitter', () => {
     const connect = () => {
       return Promise.resolve(cursor)
     }
-    restore = OplogEmitter.__set__({
+    restore = testModule.__set__({
       connectToMongo: connect
     })
 
@@ -170,7 +171,7 @@ describe('OplogEmitter', () => {
     const connect = () => {
       return Promise.resolve(cursor)
     }
-    restore = OplogEmitter.__set__({
+    restore = testModule.__set__({
       connectToMongo: connect
     })
 
@@ -193,7 +194,7 @@ describe('OplogEmitter', () => {
     const connect = () => {
       return Promise.resolve(cursor)
     }
-    restore = OplogEmitter.__set__({
+    restore = testModule.__set__({
       connectToMongo: connect
     })
 
@@ -216,7 +217,7 @@ describe('OplogEmitter', () => {
     const connect = () => {
       return Promise.resolve(cursor)
     }
-    restore = OplogEmitter.__set__({
+    restore = testModule.__set__({
       connectToMongo: connect
     })
 
@@ -250,7 +251,7 @@ describe('OplogEmitter', () => {
     const connect = () => {
       return Promise.resolve(cursor)
     }
-    restore = OplogEmitter.__set__({
+    restore = testModule.__set__({
       connectToMongo: connect
     })
 
@@ -316,6 +317,120 @@ describe('getOplogCollection', () => {
       collection: (name, opts, callback) => callback(new Error('No such collection'))
     }
     return expect(getOplogCollection(db)).to.eventually.be.rejectedWith('Could not find oplog collection. Make sure mongodb is configured for replication')
+  })
+})
+
+describe('connectToMongo', () => {
+  let restore
+  beforeEach(() => {
+    restore = () => {}
+  })
+
+  afterEach(() => {
+    restore()
+  })
+
+  it('Should try to connect to mongodb with the oplogURL', () => {
+    const oplogURL = 'mongodb://localhost:27017/consumers'
+    const log = () => {}
+    let called = false
+    restore = testModule.__set__({
+      'getOplogCollection': () => Promise.resolve('collection'),
+      'MongoClient': {
+        connect: (url) => {
+          called = true
+          expect(url).to.equal(oplogURL)
+          return Promise.resolve('db')
+        }
+      }
+    })
+
+    return connectToMongo(oplogURL, log)
+      .then(() => {
+        expect(called).to.be.true
+      })
+  })
+
+  it('Should get the oplog connection if we can connect to mongodb', () => {
+    const oplogURL = 'mongodb://localhost:27017/consumers'
+    const log = () => {}
+    let called = false
+    restore = testModule.__set__({
+      'getOplogCollection': () => {
+        called = true
+        Promise.resolve('collection')
+      },
+      'MongoClient': {
+        connect: (url) => Promise.resolve('db')
+      }
+    })
+
+    return connectToMongo(oplogURL, log)
+      .then(() => {
+        expect(called).to.be.true
+      })
+  })
+
+  it('Should reject if a connection to mongo cannot be established', () => {
+    const oplogURL = 'test'
+    const log = () => {}
+
+    return expect(connectToMongo(oplogURL, log)).to.be.rejected
+  })
+
+  it('Should try to authenticate if credentials are passed in', () => {
+    const oplogURL = 'mongodb://localhost:27017/consumers'
+    const log = () => {}
+    const credentials = {
+      username: 'username',
+      password: 'password'
+    }
+    let called = false
+    const db = {
+      authenticate: (username, password) => {
+        called = true
+        expect(username).to.equal(credentials.username)
+        expect(password).to.equal(credentials.password)
+      }
+    }
+    restore = testModule.__set__({
+      'getOplogCollection': () => Promise.resolve('collection'),
+      'MongoClient': {
+        connect: () => {
+          return Promise.resolve(db)
+        }
+      }
+    })
+
+    return connectToMongo(oplogURL, log, credentials)
+      .then(() => {
+        expect(called).to.be.true
+      })
+  })
+
+  it('Should not authenticate if credentials are absent', () => {
+    const oplogURL = 'mongodb://localhost:27017/consumers'
+    const log = () => {}
+    let called = false
+    const db = {
+      authenticate: () => {
+        called = true
+        throw new Error('Authenticate should not be called')
+      }
+    }
+    restore = testModule.__set__({
+      'getOplogCollection': () => Promise.resolve('collection'),
+      'MongoClient': {
+        connect: () => {
+          return Promise.resolve(db)
+        }
+      }
+    })
+
+    return connectToMongo(oplogURL, log)
+      .then(() => {
+        expect(called).to.be.false
+      })
   })
 })
 
