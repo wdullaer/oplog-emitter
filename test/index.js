@@ -13,6 +13,7 @@ let testModule = rewire('../lib')
 let OplogEmitter = testModule.__get__('OplogEmitter')
 let validateArgs = testModule.__get__('validateArgs')
 let getLastTimestamp = testModule.__get__('getLastTimestamp')
+let getOplogCollection = testModule.__get__('getOplogCollection')
 
 function spy (func, done) {
   return function () {
@@ -52,15 +53,17 @@ describe('OplogEmitter', () => {
       return Promise.reject(new Error('test-error'))
     }
     restore = OplogEmitter.__set__({
-      connectToMongo: dummyConnect,
-      pollerOptions: {retries: 1}
+      connectToMongo: dummyConnect
     })
 
     function errorCallback (error) {
       expect(error).to.be.an('error')
     }
 
-    let emitter = new OplogEmitter('test')
+    let emitter = new OplogEmitter({
+      oplogURL: 'test',
+      retries: 1
+    })
     emitter.on('error', spy(errorCallback, done))
   })
 
@@ -78,14 +81,15 @@ describe('OplogEmitter', () => {
       expect(op).to.deep.equal(doc)
     }
     function failCallback (error) {
+      if (error === undefined) error = new Error(this + ' callback should not fire')
       done(error)
     }
 
     let emitter = new OplogEmitter('test')
     emitter.on('insert', spy(callback, done))
-    emitter.on('error', failCallback)
-    emitter.on('update', failCallback)
-    emitter.on('delete', failCallback)
+    emitter.on('error', failCallback.bind('error'))
+    emitter.on('update', failCallback.bind('update'))
+    emitter.on('delete', failCallback.bind('delete'))
   })
 
   it('should emit "update" when an update happens', (done) => {
@@ -102,14 +106,15 @@ describe('OplogEmitter', () => {
       expect(op).to.deep.equal(doc)
     }
     function failCallback (error) {
+      if (error === undefined) error = new Error(this + ' callback should not fire')
       done(error)
     }
 
     let emitter = new OplogEmitter('test')
     emitter.on('update', spy(callback, done))
-    emitter.on('error', failCallback)
-    emitter.on('insert', failCallback)
-    emitter.on('delete', failCallback)
+    emitter.on('error', failCallback.bind('error'))
+    emitter.on('insert', failCallback.bind('insert'))
+    emitter.on('delete', failCallback.bind('delete'))
   })
 
   it('should emit "delete" when a delete happens', (done) => {
@@ -126,14 +131,15 @@ describe('OplogEmitter', () => {
       expect(op).to.deep.equal(doc)
     }
     function failCallback (error) {
+      if (error === undefined) error = new Error(this + ' callback should not fire')
       done(error)
     }
 
     let emitter = new OplogEmitter('test')
     emitter.on('delete', spy(callback, done))
-    emitter.on('error', failCallback)
-    emitter.on('insert', failCallback)
-    emitter.on('update', failCallback)
+    emitter.on('error', failCallback.bind('error'))
+    emitter.on('insert', failCallback.bind('insert'))
+    emitter.on('update', failCallback.bind('update'))
   })
 
   it('should emit "op" for an insert event', (done) => {
@@ -172,12 +178,13 @@ describe('OplogEmitter', () => {
       expect(op).to.deep.equal(doc)
     }
     function failCallback (error) {
+      if (error === undefined) error = new Error(this + ' callback should not fire')
       done(error)
     }
 
     let emitter = new OplogEmitter('test')
     emitter.on('op', spy(callback, done))
-    emitter.on('error', failCallback)
+    emitter.on('error', failCallback.bind('error'))
   })
 
   it('should emit "op" for a delete event', (done) => {
@@ -194,12 +201,13 @@ describe('OplogEmitter', () => {
       expect(op).to.deep.equal(doc)
     }
     function failCallback (error) {
+      if (error === undefined) error = new Error(this + ' callback should not fire')
       done(error)
     }
 
     let emitter = new OplogEmitter('test')
     emitter.on('op', spy(callback, done))
-    emitter.on('error', failCallback)
+    emitter.on('error', failCallback.bind('error'))
   })
 
   it('should emit all events', (done) => {
@@ -223,12 +231,13 @@ describe('OplogEmitter', () => {
       if (counter === 3) done()
     }
     function failCallback (error) {
+      if (error === undefined) error = new Error(this + ' callback should not fire')
       done(error)
     }
 
     let emitter = new OplogEmitter('test')
     emitter.on('op', callback)
-    emitter.on('error', failCallback)
+    emitter.on('error', failCallback.bind('error'))
   })
 
   it('should ignore events not matching the namespace', (done) => {
@@ -256,6 +265,7 @@ describe('OplogEmitter', () => {
       if (counter === 2) done()
     }
     function failCallback (error) {
+      if (error === undefined) error = new Error(this + ' callback should not fire')
       done(error)
     }
 
@@ -265,7 +275,7 @@ describe('OplogEmitter', () => {
       collection
     })
     emitter.on('op', callback)
-    emitter.on('error', failCallback)
+    emitter.on('error', failCallback.bind('error'))
   })
 })
 
@@ -275,7 +285,37 @@ describe('getLastTimestamp()', () => {
   })
 
   it('should resolve to a Mongodb Timestamp', () => {
-    expect(getLastTimestamp()).to.eventually.be.an.instanceOf(Timestamp)
+    return expect(getLastTimestamp()).to.eventually.be.an.instanceOf(Timestamp)
+  })
+})
+
+describe('getOplogCollection', () => {
+  it('should return a Promise resolving to the oplog, if local.oplog.rs exists', () => {
+    const collection = 'collection'
+    const db = {
+      collection: (name, opts, callback) => callback(null, collection)
+    }
+
+    return expect(getOplogCollection(db)).to.eventually.equal(collection)
+  })
+
+  it('should return a Promise resolving to the oplog, if local.oplog.$main exists', () => {
+    const collection = 'collection'
+    const db = {
+      collection: (name, opts, callback) => {
+        if (name === 'oplog.$main') return callback(null, collection)
+        return callback(new Error('No such collection'))
+      }
+    }
+
+    return expect(getOplogCollection(db)).to.eventually.equal(collection)
+  })
+
+  it('should return a Promise that rejects if no oplog can be found', () => {
+    const db = {
+      collection: (name, opts, callback) => callback(new Error('No such collection'))
+    }
+    return expect(getOplogCollection(db)).to.eventually.be.rejectedWith('Could not find oplog collection. Make sure mongodb is configured for replication')
   })
 })
 
@@ -454,5 +494,59 @@ describe('validateArgs()', () => {
     const testFn = validateArgs.bind(null, options)
 
     expect(testFn).to.throw(TypeError, 'credentials should have an attribute password that is a string')
+  })
+
+  it('should default retries to 5', () => {
+    const options = 'test'
+
+    expect(validateArgs(options)).to.have.property('retries', 5)
+  })
+
+  it('should set retries to the output', () => {
+    const retries = 10
+    const options = {
+      oplogURL: 'test',
+      retries
+    }
+
+    expect(validateArgs(options)).to.have.property('retries', retries)
+  })
+
+  it('should throw if retries is not a number', () => {
+    const retries = 'retries'
+    const options = {
+      oplogURL: 'test',
+      retries
+    }
+    const testFn = validateArgs.bind(null, options)
+
+    expect(testFn).to.throw(TypeError, 'retries should be a number')
+  })
+
+  it('should default log to a logging function', () => {
+    const options = 'test'
+
+    expect(validateArgs(options)).to.have.property('log').which.is.a.function
+  })
+
+  it('should set log to the output', () => {
+    const log = console.log
+    const options = {
+      oplogURL: 'test',
+      log
+    }
+
+    expect(validateArgs(options)).to.have.property('log', log)
+  })
+
+  it('should throw if log is not a function', () => {
+    const log = 'log'
+    const options = {
+      oplogURL: 'test',
+      log
+    }
+    const testFn = validateArgs.bind(null, options)
+
+    expect(testFn).to.throw(TypeError, 'log should be a function that logs strings')
   })
 })

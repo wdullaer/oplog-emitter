@@ -23,6 +23,7 @@
     "mongo"
   ],
   "dependencies": {
+    "bunyan": "~1.8.4",
     "mongodb": "~2.2.11",
     "promise-poller": "~1.5.1"
   },
@@ -52,7 +53,7 @@
     "lint": "./node_modules/.bin/eslint ./lib ./test",
     "mocha": "./node_modules/mocha/bin/_mocha",
     "test": "npm run lint && ./node_modules/.bin/istanbul cover --root lib/ ./node_modules/mocha/bin/_mocha",
-    "prepublish": "npm run test && npm run docs"
+    "prepublishOnly": "npm run test && npm run docs"
   },
   "license": "Apache-2.0"
 }

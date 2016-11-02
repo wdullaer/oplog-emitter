@@ -40,9 +40,8 @@ function createOplogDocument (type, options) {
 function createMongoCursor (docs) {
   if (!Array.isArray(docs)) throw new TypeError('createMongoCursor needs an array of documents as an argument')
   let cursor = streamUtil.fromArray(docs)
-  cursor.find = () => {
-    return cursor
-  }
+  cursor.find = () => cursor
+  cursor.stream = () => cursor
   return cursor
 }
 
