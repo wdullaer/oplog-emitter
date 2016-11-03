@@ -50,9 +50,7 @@ describe('OplogEmitter', () => {
   })
 
   it('should emit an error if connection to mongodb failed', (done) => {
-    const dummyConnect = () => {
-      return Promise.reject(new Error('test-error'))
-    }
+    const dummyConnect = () => Promise.reject(new Error('test-error'))
     restore = testModule.__set__({
       connectToMongo: dummyConnect
     })
@@ -68,15 +66,24 @@ describe('OplogEmitter', () => {
     emitter.on('error', spy(errorCallback, done))
   })
 
+  it('should emit an error if the cursor closes', (done) => {
+    const cursor = createMongoCursor([])
+    const connect = () => Promise.resolve(cursor)
+    restore = testModule.__set__({connectToMongo: connect})
+
+    function errorCallback (error) {
+      expect(error).to.be.an('error').that.has.property('message', 'Database cursor closed unexpectedly')
+    }
+
+    let emitter = new OplogEmitter('test')
+    emitter.on('error', spy(errorCallback, done))
+  })
+
   it('should emit "insert" when an insert happens', (done) => {
     const doc = createOplogDocument('insert')
     const cursor = createMongoCursor([doc])
-    const connect = () => {
-      return Promise.resolve(cursor)
-    }
-    restore = testModule.__set__({
-      connectToMongo: connect
-    })
+    const connect = () => Promise.resolve(cursor)
+    restore = testModule.__set__({connectToMongo: connect})
 
     function callback (op) {
       expect(op).to.deep.equal(doc)
@@ -88,7 +95,6 @@ describe('OplogEmitter', () => {
 
     let emitter = new OplogEmitter('test')
     emitter.on('insert', spy(callback, done))
-    emitter.on('error', failCallback.bind('error'))
     emitter.on('update', failCallback.bind('update'))
     emitter.on('delete', failCallback.bind('delete'))
   })
@@ -96,12 +102,8 @@ describe('OplogEmitter', () => {
   it('should emit "update" when an update happens', (done) => {
     const doc = createOplogDocument('update')
     const cursor = createMongoCursor([doc])
-    const connect = () => {
-      return Promise.resolve(cursor)
-    }
-    restore = testModule.__set__({
-      connectToMongo: connect
-    })
+    const connect = () => Promise.resolve(cursor)
+    restore = testModule.__set__({connectToMongo: connect})
 
     function callback (op) {
       expect(op).to.deep.equal(doc)
@@ -113,7 +115,6 @@ describe('OplogEmitter', () => {
 
     let emitter = new OplogEmitter('test')
     emitter.on('update', spy(callback, done))
-    emitter.on('error', failCallback.bind('error'))
     emitter.on('insert', failCallback.bind('insert'))
     emitter.on('delete', failCallback.bind('delete'))
   })
@@ -121,12 +122,8 @@ describe('OplogEmitter', () => {
   it('should emit "delete" when a delete happens', (done) => {
     const doc = createOplogDocument('delete')
     const cursor = createMongoCursor([doc])
-    const connect = () => {
-      return Promise.resolve(cursor)
-    }
-    restore = testModule.__set__({
-      connectToMongo: connect
-    })
+    const connect = () => Promise.resolve(cursor)
+    restore = testModule.__set__({connectToMongo: connect})
 
     function callback (op) {
       expect(op).to.deep.equal(doc)
@@ -138,7 +135,6 @@ describe('OplogEmitter', () => {
 
     let emitter = new OplogEmitter('test')
     emitter.on('delete', spy(callback, done))
-    emitter.on('error', failCallback.bind('error'))
     emitter.on('insert', failCallback.bind('insert'))
     emitter.on('update', failCallback.bind('update'))
   })
@@ -146,80 +142,50 @@ describe('OplogEmitter', () => {
   it('should emit "op" for an insert event', (done) => {
     const doc = createOplogDocument('insert')
     const cursor = createMongoCursor([doc])
-    const connect = () => {
-      return Promise.resolve(cursor)
-    }
-    restore = testModule.__set__({
-      connectToMongo: connect
-    })
+    const connect = () => Promise.resolve(cursor)
+    restore = testModule.__set__({connectToMongo: connect})
 
     function callback (op) {
       expect(op).to.deep.equal(doc)
     }
-    function failCallback (error) {
-      done(error)
-    }
 
     let emitter = new OplogEmitter('test')
     emitter.on('op', spy(callback, done))
-    emitter.on('error', failCallback)
   })
 
   it('should emit "op" for an update event', (done) => {
     const doc = createOplogDocument('update')
     const cursor = createMongoCursor([doc])
-    const connect = () => {
-      return Promise.resolve(cursor)
-    }
-    restore = testModule.__set__({
-      connectToMongo: connect
-    })
+    const connect = () => Promise.resolve(cursor)
+    restore = testModule.__set__({connectToMongo: connect})
 
     function callback (op) {
       expect(op).to.deep.equal(doc)
     }
-    function failCallback (error) {
-      if (error === undefined) error = new Error(this + ' callback should not fire')
-      done(error)
-    }
 
     let emitter = new OplogEmitter('test')
     emitter.on('op', spy(callback, done))
-    emitter.on('error', failCallback.bind('error'))
   })
 
   it('should emit "op" for a delete event', (done) => {
     const doc = createOplogDocument('delete')
     const cursor = createMongoCursor([doc])
-    const connect = () => {
-      return Promise.resolve(cursor)
-    }
-    restore = testModule.__set__({
-      connectToMongo: connect
-    })
+    const connect = () => Promise.resolve(cursor)
+    restore = testModule.__set__({connectToMongo: connect})
 
     function callback (op) {
       expect(op).to.deep.equal(doc)
     }
-    function failCallback (error) {
-      if (error === undefined) error = new Error(this + ' callback should not fire')
-      done(error)
-    }
 
     let emitter = new OplogEmitter('test')
     emitter.on('op', spy(callback, done))
-    emitter.on('error', failCallback.bind('error'))
   })
 
   it('should emit all events', (done) => {
     const docs = [createOplogDocument('insert'), createOplogDocument('delete'), createOplogDocument('update')]
     const cursor = createMongoCursor(docs)
-    const connect = () => {
-      return Promise.resolve(cursor)
-    }
-    restore = testModule.__set__({
-      connectToMongo: connect
-    })
+    const connect = () => Promise.resolve(cursor)
+    restore = testModule.__set__({connectToMongo: connect})
 
     let counter = 0
     function callback (op) {
@@ -231,14 +197,9 @@ describe('OplogEmitter', () => {
       counter++
       if (counter === 3) done()
     }
-    function failCallback (error) {
-      if (error === undefined) error = new Error(this + ' callback should not fire')
-      done(error)
-    }
 
     let emitter = new OplogEmitter('test')
     emitter.on('op', callback)
-    emitter.on('error', failCallback.bind('error'))
   })
 
   it('should ignore events not matching the namespace', (done) => {
@@ -248,12 +209,8 @@ describe('OplogEmitter', () => {
     const options = {namespace}
     const docs = [createOplogDocument('insert'), createOplogDocument('delete', options), createOplogDocument('update', options)]
     const cursor = createMongoCursor(docs)
-    const connect = () => {
-      return Promise.resolve(cursor)
-    }
-    restore = testModule.__set__({
-      connectToMongo: connect
-    })
+    const connect = () => Promise.resolve(cursor)
+    restore = testModule.__set__({connectToMongo: connect})
 
     let counter = 0
     function callback (op) {
@@ -265,10 +222,6 @@ describe('OplogEmitter', () => {
       }
       if (counter === 2) done()
     }
-    function failCallback (error) {
-      if (error === undefined) error = new Error(this + ' callback should not fire')
-      done(error)
-    }
 
     let emitter = new OplogEmitter({
       oplogURL: 'test',
@@ -276,7 +229,6 @@ describe('OplogEmitter', () => {
       collection
     })
     emitter.on('op', callback)
-    emitter.on('error', failCallback.bind('error'))
   })
 })
 
