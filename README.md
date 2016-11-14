@@ -17,8 +17,8 @@ $ npm install oplog-emitter
 ```js
 let OplogEmitter = require('oplog-emitter');
 
-let emitter = new OplogEmitter('mongodb://localhost:27000/local?authSource=admin');
-emitter.on('insert', (op) => console.log(`${op} was inserted`));
+let emitter = new OplogEmitter('mongodb://localhost:27000/local?authSource=admin')
+emitter.on('insert', (op) => console.log(`${op} was inserted`))
 ```
 
 ## TODO
@@ -45,11 +45,13 @@ An object containing the configuration options of the OplogEmitter
 
 **Properties**
 
--   `oplogURL` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)**
--   `getLastTimestamp` **?[TimestampGenerator](#timestampgenerator)**
--   `database` **?[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)**
--   `collection` **?[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)**
--   `credentials` **?[Credentials](#credentials)**
+-   `oplogURL` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** A mongodb connection string to the oplog
+-   `getLastTimestamp` **?[TimestampGenerator](#timestampgenerator)** A function returning a mongodb Timestamp with the starting offset in the oplog
+-   `database` **?[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** Filter oplog events by this database name
+-   `collection` **?[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** Filter oplog events by this collection name
+-   `credentials` **?[Credentials](#credentials)** An object of mongodb credentials
+-   `retries` **?[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** The amount of times to retry connecting to the database (with exponential-backoff)
+-   `log` **?[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** A function which this library can use to log
 
 ### Credentials
 
@@ -57,8 +59,8 @@ An object with mongodb credentials
 
 **Properties**
 
--   `username` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)**
--   `password` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)**
+-   `username` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+-   `password` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
 
 ### TimestampGenerator
 
@@ -89,4 +91,4 @@ emitter.on('update', () => console.log('A document was updated in the database')
 emitter.on('error', () => console.log('Something went wrong when reading'));
 ```
 
--   Throws **any** TypeError                 when constructor arguments are not valid
+-   Throws **[TypeError](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypeError)** when constructor arguments are not valid
