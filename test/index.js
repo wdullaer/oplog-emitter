@@ -248,8 +248,9 @@ describe('getOplogCollection', () => {
     const db = {
       collection: (name, opts, callback) => callback(null, collection)
     }
+    const log = () => {}
 
-    return expect(getOplogCollection(db)).to.eventually.equal(collection)
+    return expect(getOplogCollection(db, log)).to.eventually.equal(collection)
   })
 
   it('should return a Promise resolving to the oplog, if local.oplog.$main exists', () => {
@@ -260,15 +261,18 @@ describe('getOplogCollection', () => {
         return callback(new Error('No such collection'))
       }
     }
+    const log = () => {}
 
-    return expect(getOplogCollection(db)).to.eventually.equal(collection)
+    return expect(getOplogCollection(db, log)).to.eventually.equal(collection)
   })
 
   it('should return a Promise that rejects if no oplog can be found', () => {
     const db = {
       collection: (name, opts, callback) => callback(new Error('No such collection'))
     }
-    return expect(getOplogCollection(db)).to.eventually.be.rejectedWith('Could not find oplog collection. Make sure mongodb is configured for replication')
+    const log = () => {}
+
+    return expect(getOplogCollection(db, log)).to.eventually.be.rejectedWith('Could not find oplog collection. Make sure mongodb is configured for replication')
   })
 })
 
