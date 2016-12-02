@@ -4,7 +4,7 @@
 The module connects to a mongodb oplog and emits all of the transactions as a nodejs event emitter. This provides a much nicer high level API to work with.
 All events are emitted as an `op` event. Insert, update and delete events are available as `insert`, `update` and `delete` respectively.
 
-The module can authenticate using username/password and allows you to pass in a custom last processed timestamp. If this is not provided, it will only emit events that occured after the module connected to mongodb.
+The module can authenticate in the admin database using username/password and allows you to pass in a custom last processed timestamp. If this is not provided, it will only emit events that occurred after the module connected to mongodb.
 
 ## Installation
 
@@ -17,7 +17,7 @@ $ npm install oplog-emitter
 ```js
 let OplogEmitter = require('oplog-emitter');
 
-let emitter = new OplogEmitter('mongodb://localhost:27000/local?authSource=admin')
+let emitter = new OplogEmitter('mongodb://myuser:password@localhost:27000/local?authSource=admin')
 emitter.on('insert', (op) => console.log(`${op} was inserted`))
 ```
 
@@ -55,7 +55,7 @@ An object containing the configuration options of the OplogEmitter
 
 ### Credentials
 
-An object with mongodb credentials
+An object with mongodb credentials of a user in the admin database
 
 **Properties**
 
