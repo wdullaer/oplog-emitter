@@ -330,7 +330,7 @@ describe('connectToMongo', () => {
     return expect(connectToMongo(oplogURL, log)).to.be.rejected
   })
 
-  it('Should try to authenticate if credentials are passed in', () => {
+  it('Should try to authenticate in the admin db if credentials are passed in', () => {
     const oplogURL = 'mongodb://localhost:27017/consumers'
     const log = () => {}
     const credentials = {
@@ -339,6 +339,7 @@ describe('connectToMongo', () => {
     }
     let called = false
     const db = {
+      admin: () => db,
       authenticate: (username, password) => {
         called = true
         expect(username).to.equal(credentials.username)
