@@ -66,6 +66,56 @@ describe('OplogEmitter', () => {
     emitter.on('error', spy(errorCallback, done))
   })
 
+  it('should emit an error if getting the last timestamp failed', (done) => {
+    const cursor = createMongoCursor([])
+    const connect = () => Promise.resolve(cursor)
+    const message = 'Getting last timestamp failed'
+    restore = testModule.__set__({connectToMongo: connect})
+
+    function errorCallback (error) {
+      expect(error).to.be.an('error').that.has.property('message', message)
+    }
+
+    let emitter = new OplogEmitter({
+      oplogURL: 'test',
+      getLastTimestamp: () => Promise.reject(new Error(message))
+    })
+    emitter.on('error', spy(errorCallback, done))
+  })
+
+  it('should emit an error if getting the last timestamp times out', (done) => {
+    const cursor = createMongoCursor([])
+    const connect = () => Promise.resolve(cursor)
+    restore = testModule.__set__({connectToMongo: connect})
+
+    function errorCallback (error) {
+      expect(error).to.be.an('error').that.has.property('message', 'getLastTimestamp did not resolve before the timeout')
+    }
+
+    let emitter = new OplogEmitter({
+      oplogURL: 'test',
+      getLastTimestamp: () => new Promise((resolve) => setTimeout(resolve, 10000)),
+      timestampTimeout: 1000
+    })
+    emitter.on('error', spy(errorCallback, done))
+  })
+
+  it('should emit an error if getLastTimestamp does not return a mongodb Timestamp', (done) => {
+    const cursor = createMongoCursor([])
+    const connect = () => Promise.resolve(cursor)
+    restore = testModule.__set__({connectToMongo: connect})
+
+    function errorCallback (error) {
+      expect(error).to.be.an('error').that.has.property('message', 'getLastTimestamp() should return a mongodb.Timestamp')
+    }
+
+    let emitter = new OplogEmitter({
+      oplogURL: 'test',
+      getLastTimestamp: () => Promise.resolve('not a timestamp')
+    })
+    emitter.on('error', spy(errorCallback, done))
+  })
+
   it('should emit an error if the cursor closes', (done) => {
     const cursor = createMongoCursor([])
     const connect = () => Promise.resolve(cursor)
@@ -620,5 +670,32 @@ describe('validateArgs()', () => {
     const testFn = validateArgs.bind(null, options)
 
     expect(testFn).to.throw(TypeError, 'log should be a function that logs strings')
+  })
+
+  it('should default timestampTimeout to 30000', () => {
+    const options = 'test'
+
+    expect(validateArgs(options)).to.have.property('timestampTimeout', 30000)
+  })
+
+  it('should set retries to the output', () => {
+    const timestampTimeout = 1000
+    const options = {
+      oplogURL: 'test',
+      timestampTimeout
+    }
+
+    expect(validateArgs(options)).to.have.property('timestampTimeout', timestampTimeout)
+  })
+
+  it('should throw if retries is not a number', () => {
+    const timestampTimeout = 'timestampTimeout'
+    const options = {
+      oplogURL: 'test',
+      timestampTimeout
+    }
+    const testFn = validateArgs.bind(null, options)
+
+    expect(testFn).to.throw(TypeError, 'timestampTimeout should be a number')
   })
 })

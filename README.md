@@ -52,6 +52,7 @@ An object containing the configuration options of the OplogEmitter
 -   `credentials` **?[Credentials](#credentials)** An object of mongodb credentials
 -   `retries` **?[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** The amount of times to retry connecting to the database (with exponential-backoff)
 -   `log` **?[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** A function which this library can use to log
+-   `timestampTimeout` **?[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** The number of milliseconds we should wait for getLastTimestamp to return a result
 
 ### Credentials
 
