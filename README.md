@@ -1,4 +1,6 @@
 # oplog-emitter [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url]
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/wdullaer/oplog-emitter.svg)](https://greenkeeper.io/)
 > Process your mongodb oplog as events
 
 The module connects to a mongodb oplog and emits all of the transactions as a nodejs event emitter. This provides a much nicer high level API to work with.
