@@ -648,7 +648,7 @@ describe('validateArgs()', () => {
   it('should default log to a logging function', () => {
     const options = 'test'
 
-    expect(validateArgs(options)).to.have.property('log').which.is.a.function
+    expect(validateArgs(options)).to.have.property('log').which.is.a('function')
   })
 
   it('should set log to the output', () => {
