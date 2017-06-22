@@ -24,7 +24,7 @@
   ],
   "dependencies": {
     "bunyan": "~1.8.10",
-    "mongodb": "~2.2.28",
+    "mongodb": "~2.2.29",
     "promise-poller": "~1.5.2"
   },
   "devDependencies": {
@@ -33,7 +33,7 @@
     "documentation": "~4.0.0-rc.1",
     "eslint": "~4.0.0",
     "eslint-config-standard": "~10.2.1",
-    "eslint-plugin-import": "~2.3.0",
+    "eslint-plugin-import": "~2.5.0",
     "eslint-plugin-node": "~5.0.0",
     "eslint-plugin-promise": "~3.5.0",
     "eslint-plugin-standard": "~3.0.1",
