@@ -37,9 +37,9 @@
     "eslint-plugin-node": "~5.2.0",
     "eslint-plugin-promise": "~3.5.0",
     "eslint-plugin-standard": "~3.0.1",
-    "istanbul": "~0.4.5",
     "mocha": "~4.0.0",
     "nsp": "~2.8.1",
+    "nyc": "~11.2.1",
     "rewire": "~2.5.2",
     "stream-util": "~4.0.4"
   },
@@ -53,8 +53,8 @@
   "scripts": {
     "docs": "cat README-base.md > README.md && ./node_modules/.bin/documentation build -f md ./lib/index.js | sed 's/^# /### /g' >> README.md",
     "lint": "./node_modules/.bin/eslint ./lib ./test",
-    "mocha": "./node_modules/mocha/bin/_mocha",
-    "test": "npm run lint && ./node_modules/.bin/istanbul cover --root lib/ ./node_modules/mocha/bin/_mocha",
+    "mocha": "./node_modules/mocha/bin/_mocha --exit",
+    "test": "npm run lint && ./node_modules/.bin/nyc --root lib/ ./node_modules/mocha/bin/mocha --exit",
     "prepublishOnly": "npm run test && npm run docs"
   },
   "license": "Apache-2.0"
