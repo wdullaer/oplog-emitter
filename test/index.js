@@ -38,7 +38,10 @@ describe('OplogEmitter', () => {
   })
 
   it('should return a new instance of OplogEmittter', () => {
-    expect(new OplogEmitter('test')).to.be.an.instanceOf(OplogEmitter).which.is.an.instanceOf(EventEmitter)
+    const oplogEmitter = new OplogEmitter('test')
+    // Not a valid mongo url, so connection will fail. Catch it to prevent node from exiting
+    oplogEmitter.on('error', () => {})
+    expect(oplogEmitter).to.be.an.instanceOf(OplogEmitter).which.is.an.instanceOf(EventEmitter)
   })
 
   it('should throw an error when the arguments are not valid', () => {
