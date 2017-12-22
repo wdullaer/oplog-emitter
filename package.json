@@ -39,7 +39,7 @@
     "eslint-plugin-standard": "~3.0.1",
     "mocha": "~4.0.1",
     "nsp": "~3.1.0",
-    "nyc": "~11.3.0",
+    "nyc": "~11.4.1",
     "rewire": "~3.0.0",
     "stream-util": "~4.0.4"
   },
