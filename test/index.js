@@ -345,12 +345,11 @@ describe('connectToMongo', () => {
     let called = false
     restore = testModule.__set__({
       'getOplogCollection': () => Promise.resolve('collection'),
-      'MongoClient': {
-        connect: (url) => {
-          called = true
-          expect(url).to.equal(oplogURL)
-          return Promise.resolve('db')
-        }
+      'MongoClient': function MongoClient (url) {
+        called = true
+        this.connect = () => Promise.resolve(this)
+        this.db = () => 'db'
+        return this
       }
     })
 
@@ -369,8 +368,10 @@ describe('connectToMongo', () => {
         called = true
         Promise.resolve('collection')
       },
-      'MongoClient': {
-        connect: (url) => Promise.resolve('db')
+      'MongoClient': function MongoClient (url) {
+        this.connect = () => Promise.resolve(this)
+        this.db = () => 'db'
+        return this
       }
     })
 
@@ -395,20 +396,16 @@ describe('connectToMongo', () => {
       password: 'password'
     }
     let called = false
-    const db = {
-      admin: () => db,
-      authenticate: (username, password) => {
-        called = true
-        expect(username).to.equal(credentials.username)
-        expect(password).to.equal(credentials.password)
-      }
-    }
     restore = testModule.__set__({
       'getOplogCollection': () => Promise.resolve('collection'),
-      'MongoClient': {
-        connect: () => {
-          return Promise.resolve(db)
-        }
+      'MongoClient': function MongoClient (url, options) {
+        this.connect = () => Promise.resolve(this)
+        this.db = () => 'db'
+        called = true
+
+        expect(options).to.have.nested.property('auth.user', credentials.username)
+        expect(options).to.have.nested.property('auth.password', credentials.password)
+        expect(options).to.have.nested.property('authSource', 'adming')
       }
     })
 
@@ -421,26 +418,19 @@ describe('connectToMongo', () => {
   it('Should not authenticate if credentials are absent', () => {
     const oplogURL = 'mongodb://localhost:27017/consumers'
     const log = () => {}
-    let called = false
-    const db = {
-      authenticate: () => {
-        called = true
-        throw new Error('Authenticate should not be called')
-      }
-    }
     restore = testModule.__set__({
       'getOplogCollection': () => Promise.resolve('collection'),
-      'MongoClient': {
-        connect: () => {
-          return Promise.resolve(db)
-        }
+      'MongoClient': function MongoClient (url, options) {
+        this.connect = () => Promise.resolve(this)
+        this.db = () => 'db'
+
+        expect(options).to.not.have.nested.property('auth.user')
+        expect(options).to.not.have.nested.property('auth.password')
+        expect(options).to.not.have.nested.property('authSource')
       }
     })
 
-    return connectToMongo(oplogURL, log)
-      .then(() => {
-        expect(called).to.be.false
-      })
+    return expect(connectToMongo(oplogURL, log)).to.be.fulfilled
   })
 })
 
