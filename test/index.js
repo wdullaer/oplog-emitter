@@ -150,6 +150,7 @@ describe('OplogEmitter', () => {
     emitter.on('insert', spy(callback, done))
     emitter.on('update', failCallback.bind('update'))
     emitter.on('delete', failCallback.bind('delete'))
+    emitter.on('error', () => { /* Because our mocked cursor is finite an error will be emitted when it ends */ })
   })
 
   it('should emit "update" when an update happens', (done) => {
@@ -170,6 +171,7 @@ describe('OplogEmitter', () => {
     emitter.on('update', spy(callback, done))
     emitter.on('insert', failCallback.bind('insert'))
     emitter.on('delete', failCallback.bind('delete'))
+    emitter.on('error', () => { /* Because our mocked cursor is finite an error will be emitted when it ends */ })
   })
 
   it('should emit "delete" when a delete happens', (done) => {
@@ -190,6 +192,7 @@ describe('OplogEmitter', () => {
     emitter.on('delete', spy(callback, done))
     emitter.on('insert', failCallback.bind('insert'))
     emitter.on('update', failCallback.bind('update'))
+    emitter.on('error', () => { /* Because our mocked cursor is finite an error will be emitted when it ends */ })
   })
 
   it('should emit "op" for an insert event', (done) => {
@@ -204,6 +207,7 @@ describe('OplogEmitter', () => {
 
     let emitter = new OplogEmitter('test')
     emitter.on('op', spy(callback, done))
+    emitter.on('error', () => { /* Because our mocked cursor is finite an error will be emitted when it ends */ })
   })
 
   it('should emit "op" for an update event', (done) => {
@@ -218,6 +222,7 @@ describe('OplogEmitter', () => {
 
     let emitter = new OplogEmitter('test')
     emitter.on('op', spy(callback, done))
+    emitter.on('error', () => { /* Because our mocked cursor is finite an error will be emitted when it ends */ })
   })
 
   it('should emit "op" for a delete event', (done) => {
@@ -232,6 +237,7 @@ describe('OplogEmitter', () => {
 
     let emitter = new OplogEmitter('test')
     emitter.on('op', spy(callback, done))
+    emitter.on('error', () => { /* Because our mocked cursor is finite an error will be emitted when it ends */ })
   })
 
   it('should emit all events', (done) => {
@@ -253,6 +259,7 @@ describe('OplogEmitter', () => {
 
     let emitter = new OplogEmitter('test')
     emitter.on('op', callback)
+    emitter.on('error', () => { /* Because our mocked cursor is finite an error will be emitted when it ends */ })
   })
 
   it('should ignore events not matching the namespace', (done) => {
@@ -282,6 +289,7 @@ describe('OplogEmitter', () => {
       collection
     })
     emitter.on('op', callback)
+    emitter.on('error', () => { /* Because our mocked cursor is finite an error will be emitted when it ends */ })
   })
 })
 
