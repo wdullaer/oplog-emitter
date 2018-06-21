@@ -24,23 +24,22 @@
   ],
   "dependencies": {
     "bunyan": "~1.8.12",
-    "mongodb": "~3.0.4",
+    "mongodb": "~3.0.10",
     "promise-poller": "~1.6.0"
   },
   "devDependencies": {
     "chai": "~4.1.2",
     "chai-as-promised": "~7.1.1",
-    "documentation": "~7.1.0",
-    "eslint": "~4.19.0",
+    "documentation": "~8.0.0",
+    "eslint": "~4.19.1",
     "eslint-config-standard": "~11.0.0",
     "eslint-plugin-import": "~2.12.0",
     "eslint-plugin-node": "~6.0.1",
     "eslint-plugin-promise": "~3.8.0",
     "eslint-plugin-standard": "~3.1.0",
     "mocha": "~5.2.0",
-    "nsp": "~3.2.1",
-    "nyc": "~11.8.0",
-    "rewire": "~4.0.0",
+    "nyc": "~12.0.2",
+    "rewire": "~4.0.1",
     "stream-util": "~4.0.4"
   },
   "eslintConfig": {
