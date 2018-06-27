@@ -24,7 +24,7 @@
   ],
   "dependencies": {
     "bunyan": "~1.8.12",
-    "mongodb": "~3.0.10",
+    "mongodb": "~3.1.0",
     "promise-poller": "~1.6.0"
   },
   "devDependencies": {
