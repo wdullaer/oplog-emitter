@@ -73,7 +73,7 @@ describe('OplogEmitter', () => {
     const cursor = createMongoCursor([])
     const connect = () => Promise.resolve(cursor)
     const message = 'Getting last timestamp failed'
-    restore = testModule.__set__({connectToMongo: connect})
+    restore = testModule.__set__({ connectToMongo: connect })
 
     function errorCallback (error) {
       expect(error).to.be.an('error').that.has.property('message', message)
@@ -89,7 +89,7 @@ describe('OplogEmitter', () => {
   it('should emit an error if getting the last timestamp times out', (done) => {
     const cursor = createMongoCursor([])
     const connect = () => Promise.resolve(cursor)
-    restore = testModule.__set__({connectToMongo: connect})
+    restore = testModule.__set__({ connectToMongo: connect })
 
     function errorCallback (error) {
       expect(error).to.be.an('error').that.has.property('message', 'getLastTimestamp did not resolve before the timeout')
@@ -106,7 +106,7 @@ describe('OplogEmitter', () => {
   it('should emit an error if getLastTimestamp does not return a mongodb Timestamp', (done) => {
     const cursor = createMongoCursor([])
     const connect = () => Promise.resolve(cursor)
-    restore = testModule.__set__({connectToMongo: connect})
+    restore = testModule.__set__({ connectToMongo: connect })
 
     function errorCallback (error) {
       expect(error).to.be.an('error').that.has.property('message', 'getLastTimestamp() should return a mongodb.Timestamp')
@@ -122,7 +122,7 @@ describe('OplogEmitter', () => {
   it('should emit an error if the cursor closes', (done) => {
     const cursor = createMongoCursor([])
     const connect = () => Promise.resolve(cursor)
-    restore = testModule.__set__({connectToMongo: connect})
+    restore = testModule.__set__({ connectToMongo: connect })
 
     function errorCallback (error) {
       expect(error).to.be.an('error').that.has.property('message', 'Database cursor closed unexpectedly')
@@ -136,7 +136,7 @@ describe('OplogEmitter', () => {
     const doc = createOplogDocument('insert')
     const cursor = createMongoCursor([doc])
     const connect = () => Promise.resolve(cursor)
-    restore = testModule.__set__({connectToMongo: connect})
+    restore = testModule.__set__({ connectToMongo: connect })
 
     function callback (op) {
       expect(op).to.deep.equal(doc)
@@ -157,7 +157,7 @@ describe('OplogEmitter', () => {
     const doc = createOplogDocument('update')
     const cursor = createMongoCursor([doc])
     const connect = () => Promise.resolve(cursor)
-    restore = testModule.__set__({connectToMongo: connect})
+    restore = testModule.__set__({ connectToMongo: connect })
 
     function callback (op) {
       expect(op).to.deep.equal(doc)
@@ -178,7 +178,7 @@ describe('OplogEmitter', () => {
     const doc = createOplogDocument('delete')
     const cursor = createMongoCursor([doc])
     const connect = () => Promise.resolve(cursor)
-    restore = testModule.__set__({connectToMongo: connect})
+    restore = testModule.__set__({ connectToMongo: connect })
 
     function callback (op) {
       expect(op).to.deep.equal(doc)
@@ -199,7 +199,7 @@ describe('OplogEmitter', () => {
     const doc = createOplogDocument('insert')
     const cursor = createMongoCursor([doc])
     const connect = () => Promise.resolve(cursor)
-    restore = testModule.__set__({connectToMongo: connect})
+    restore = testModule.__set__({ connectToMongo: connect })
 
     function callback (op) {
       expect(op).to.deep.equal(doc)
@@ -214,7 +214,7 @@ describe('OplogEmitter', () => {
     const doc = createOplogDocument('update')
     const cursor = createMongoCursor([doc])
     const connect = () => Promise.resolve(cursor)
-    restore = testModule.__set__({connectToMongo: connect})
+    restore = testModule.__set__({ connectToMongo: connect })
 
     function callback (op) {
       expect(op).to.deep.equal(doc)
@@ -229,7 +229,7 @@ describe('OplogEmitter', () => {
     const doc = createOplogDocument('delete')
     const cursor = createMongoCursor([doc])
     const connect = () => Promise.resolve(cursor)
-    restore = testModule.__set__({connectToMongo: connect})
+    restore = testModule.__set__({ connectToMongo: connect })
 
     function callback (op) {
       expect(op).to.deep.equal(doc)
@@ -244,7 +244,7 @@ describe('OplogEmitter', () => {
     const docs = [createOplogDocument('insert'), createOplogDocument('delete'), createOplogDocument('update')]
     const cursor = createMongoCursor(docs)
     const connect = () => Promise.resolve(cursor)
-    restore = testModule.__set__({connectToMongo: connect})
+    restore = testModule.__set__({ connectToMongo: connect })
 
     let counter = 0
     function callback (op) {
@@ -266,11 +266,11 @@ describe('OplogEmitter', () => {
     const database = 'consumers'
     const collection = 'records'
     const namespace = database + '.' + collection
-    const options = {namespace}
+    const options = { namespace }
     const docs = [createOplogDocument('insert'), createOplogDocument('delete', options), createOplogDocument('update', options)]
     const cursor = createMongoCursor(docs)
     const connect = () => Promise.resolve(cursor)
-    restore = testModule.__set__({connectToMongo: connect})
+    restore = testModule.__set__({ connectToMongo: connect })
 
     let counter = 0
     function callback (op) {
@@ -456,7 +456,7 @@ describe('validateArgs()', () => {
   })
 
   it('should throw a TypeError if oplogURL is not a string', () => {
-    const options = {oplogURL: 12345}
+    const options = { oplogURL: 12345 }
     const testFn = validateArgs.bind(null, options)
 
     expect(testFn).to.throw(TypeError, 'oplogURL must be a string')
@@ -470,13 +470,13 @@ describe('validateArgs()', () => {
 
   it('should set the input oplogURL in the output', () => {
     const oplogURL = 'test'
-    const options = {oplogURL}
+    const options = { oplogURL }
 
     expect(validateArgs(options)).to.have.property('oplogURL').that.deep.equals(oplogURL)
   })
 
   it('should default getLastTimestamp to getLastTimestamp()', () => {
-    const options = {oplogURL: 'test'}
+    const options = { oplogURL: 'test' }
 
     expect(validateArgs(options)).to.have.property('getLastTimestamp', getLastTimestamp)
   })
@@ -492,7 +492,7 @@ describe('validateArgs()', () => {
   })
 
   it('should default database to .*', () => {
-    const options = {oplogURL: 'test'}
+    const options = { oplogURL: 'test' }
 
     expect(validateArgs(options)).to.have.property('database').that.deep.equals('.*')
   })
@@ -518,7 +518,7 @@ describe('validateArgs()', () => {
   })
 
   it('should default collection to .*', () => {
-    const options = {oplogURL: 'test'}
+    const options = { oplogURL: 'test' }
 
     expect(validateArgs(options)).to.have.property('collection').that.deep.equals('.*')
   })
@@ -544,7 +544,7 @@ describe('validateArgs()', () => {
   })
 
   it('should not default any credentials', () => {
-    const options = {oplogURL: 'test'}
+    const options = { oplogURL: 'test' }
 
     expect(validateArgs(options)).to.not.have.property('credentials')
   })
@@ -573,7 +573,7 @@ describe('validateArgs()', () => {
   })
 
   it('should throw if credentials.username is not provided', () => {
-    const credentials = {password: 'password'}
+    const credentials = { password: 'password' }
     const options = {
       oplogURL: 'test',
       credentials
@@ -584,7 +584,7 @@ describe('validateArgs()', () => {
   })
 
   it('should throw if credentials.username is not a string', () => {
-    const credentials = {username: 12345}
+    const credentials = { username: 12345 }
     const options = {
       oplogURL: 'test',
       credentials
@@ -595,7 +595,7 @@ describe('validateArgs()', () => {
   })
 
   it('should throw if credentials.password is not provided', () => {
-    const credentials = {username: 'username'}
+    const credentials = { username: 'username' }
     const options = {
       oplogURL: 'test',
       credentials

@@ -27,7 +27,7 @@ function createOplogDocument (type, options) {
       break
     case 'update':
       instance.op = 'u'
-      instance.o2 = instance.o || {_id: '12345'}
+      instance.o2 = instance.o || { _id: '12345' }
       break
     case 'delete':
       instance.op = 'd'
