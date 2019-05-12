@@ -1,6 +1,8 @@
 # oplog-emitter [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url] [![Greenkeeper badge][greenkeeper-image]](https://greenkeeper.io/)
 > Process your mongodb oplog as events
 
+> The mongodb driver has added this feature in version 3. There's no reason any more to use this library, so it has therefore been archived.
+
 The module connects to a mongodb oplog and emits all of the transactions as a nodejs event emitter. This provides a much nicer high level API to work with.
 All events are emitted as an `op` event. Insert, update and delete events are available as `insert`, `update` and `delete` respectively.
 
